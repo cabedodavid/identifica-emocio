@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Explorador d'Emocions</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary: #2d5a27;
+            --secondary: #e8f5e9;
+            --text: #333333;
+            --accent: #ffcc00;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+
+        header {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 5px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: transform 0.1s;
+            touch-action: manipulation;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-lang {
+            padding: 8px 12px;
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        .btn-lang.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .screen {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .intro-img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 10px; color: var(--primary); }
+        p { font-size: 1.2rem; line-height: 1.4; margin-bottom: 20px; }
+
+        .btn-start {
+            padding: 20px 40px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .scenario-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            background: #f8f9fa;
+            border: 3px solid #dee2e6;
+            padding: 15px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2rem;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .pictogram {
+            width: 40px;
+            height: 40px;
+        }
+
+        .feedback-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .feedback-overlay.show {
+            display: flex;
+        }
+
+        .feedback-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .speaker-btn {
+            background: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-left: 10px;
+        }
+
+        /* Reading aid highlighting */
+        .readable-text {
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .score-display {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <header>
+        <div class="score-display" id="score-text">Punts: 0</div>
+        <div class="lang-toggle">
+            <button id="btn-ca" class="btn-lang active" onclick="setLanguage('ca')">VAL</button>
+            <button id="btn-es" class="btn-lang" onclick="setLanguage('es')">ESP</button>
+        </div>
+    </header>
+
+    <!-- Intro Screen -->
+    <div id="screen-intro" class="screen active">
+        <h1 id="intro-title">Hola! 👋</h1>
+        <p id="intro-desc">Anem a aprendre sobre les emocions. Mira les fotos i tria com es sent cada persona.</p>
+        <button class="btn-start" onclick="startGame()" id="btn-start-text">Començar</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="screen-game" class="screen">
+        <div class="scenario-card">
+            <img id="scenario-image" src="" alt="Escenari" class="scenario-img">
+            <div style="display:flex; align-items:center; justify-content:center;">
+                <p id="scenario-question" style="margin:0; font-weight:bold;">Com es sent aquesta persona?</p>
+                <button class="speaker-btn" onclick="speakCurrentQuestion()">🔊</button>
+            </div>
+            <div id="options-container" class="options-grid">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Overlay -->
+    <div id="feedback" class="feedback-overlay">
+        <div class="feedback-icon" id="feedback-icon">🌟</div>
+        <h2 id="feedback-text">Molt bé!</h2>
+        <p id="feedback-subtext">Ho has aconseguit.</p>
+        <button class="btn-start" onclick="nextScenario()" id="btn-next">Següent</button>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="screen-results" class="screen">
+        <h1 id="results-title">Fantàstic! 🏆</h1>
+        <p id="results-desc">Has completat tota l'activitat.</p>
+        <div id="final-score" style="font-size: 2rem; margin-bottom: 20px;"></div>
+        <button class="btn-start" onclick="restartGame()" id="btn-restart">Tornar a jugar</button>
+    </div>
+
+    <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+    </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
